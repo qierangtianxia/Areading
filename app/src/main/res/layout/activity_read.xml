@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:id="@+id/flReadWidget"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="false"
+        android:focusable="false"
+        android:layerType="hardware"
+        tools:context="com.qrtx.areading.ui.activity.ReadActivity"></FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/id_read_setting_ceil"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#c000"
+        android:orientation="vertical"
+        android:visibility="gone"></LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/id_read_setting_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_gravity="bottom"
+        android:background="#c000"
+        android:orientation="vertical"
+        android:visibility="gone"></LinearLayout>
+</FrameLayout>
+

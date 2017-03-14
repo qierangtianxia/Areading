@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#200f">
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/id_read_history_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="15dp"
+        app:srcCompat="@mipmap/user_center_sign" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/id_setting_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/id_read_history_fab"
+        android:layout_alignRight="@id/id_read_history_fab"
+        app:srcCompat="@mipmap/user_center_setting" />
+
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/id_novel_rylview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</RelativeLayout>
