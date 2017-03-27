@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="5dp">
+
+    <ImageView
+        android:id="@+id/id_iv_commentor_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:src="@mipmap/user_center_male_small" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/id_iv_commentor_icon"
+        android:layout_alignTop="@id/id_iv_commentor_icon"
+        android:layout_toRightOf="@id/id_iv_commentor_icon"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/id_tv_comment_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="用户名"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/id_tv_comment_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2015年12月12日" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/id_tv_comment_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/id_iv_commentor_icon"
+        android:layout_marginTop="2dp"
+        android:layout_toRightOf="@id/id_iv_commentor_icon"
+        android:text="stewsagteqaygeratyg
+        sadsad
+        sdfsdferatthyrzsa"
+        android:textColor="#000"
+        android:textSize="18sp" />
+
+</RelativeLayout>

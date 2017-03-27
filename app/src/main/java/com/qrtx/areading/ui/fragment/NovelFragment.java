@@ -1,6 +1,6 @@
 package com.qrtx.areading.ui.fragment;
 
-import android.content.ContentValues;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
@@ -26,6 +26,7 @@ import com.qrtx.areading.utils.BookUtil;
 import com.qrtx.areading.utils.DbUtil;
 import com.qrtx.areading.utils.GlobalController;
 import com.qrtx.areading.utils.LogUtil;
+import com.qrtx.areading.utils.OnKeyShareUtil;
 
 import java.util.ArrayList;
 
@@ -83,27 +84,20 @@ public class NovelFragment extends BaseFragment {
         mNovelRcvAdapter = new NovelRcvAdapter(mBootActivity, mBookList);
         mNovelRcv.setAdapter(mNovelRcvAdapter);
         LogUtil.i("mNovelRcvAdapter = " + mNovelRcvAdapter);
+
+
         mNovelRcvAdapter.setOnItemClickLitener(new NovelRcvAdapter.OnItemClickLitener() {
             @Override
             public void onItemClick(View view, int position) {
-
                 Intent intent = new Intent(mBootActivity, ReadActivity.class);
 
                 intent.putExtra(Constants.KEY_BOOK, mBookList.get(position));
                 mBootActivity.startActivity(intent);
-
-                SQLiteDatabase database = DbUtil.openDatabase(Constants.DATABASE_NAME);
-                ContentValues contentValues = new ContentValues();
-                contentValues.put("_id", 1);
-                contentValues.put("bookName", mBookList.get(position).getBookName());
-                database.insert(Constants.TABLE_NAME_READ_HISTORY, null, contentValues);
-
-
             }
 
             @Override
             public boolean onItemLongClick(View view, int position) {
-                showNormalDialog(position);
+                showDialog(position);
                 return true;
             }
         });
@@ -142,15 +136,12 @@ public class NovelFragment extends BaseFragment {
         super.onStart();
         setActionTitle(Constants.TITLE_PAGER_NOVEL);
         if (GlobalController.sNovelIsUpdata) {
-
             ArrayList<Book> newBookList = BookUtil.getBookFromNovelDb();
             mBookList.clear();
             mBookList.addAll(newBookList);
             mNovelRcvAdapter.notifyDataSetChanged();
-
             GlobalController.sNovelIsUpdata = false;
         }
-        LogUtil.i("GlobalController.sNovelIsUpdata = " + GlobalController.sNovelIsUpdata);
     }
 
     @Override
@@ -161,32 +152,6 @@ public class NovelFragment extends BaseFragment {
         }
     }
 
-    private void showNormalDialog(final int position) {
-        /* @setIcon 设置对话框图标
-         * @setTitle 设置对话框标题
-         * @setMessage 设置对话框消息提示
-         * setXXX方法返回Dialog对象，因此可以链式设置属性
-         */
-        final AlertDialog.Builder normalDialog =
-                new AlertDialog.Builder(mBootActivity);
-        normalDialog.setMessage("是否想要讲＝将这本书从书架移除?");
-        normalDialog.setPositiveButton("确定",
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        removeBookFromNovel(position);
-                    }
-                });
-        normalDialog.setNegativeButton("取消",
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                });
-        // 显示
-        normalDialog.show();
-    }
-
     private void removeBookFromNovel(int position) {
         if (position >= mBookList.size()) {
             return;
@@ -195,8 +160,41 @@ public class NovelFragment extends BaseFragment {
         int delete = database.delete(Constants.TABLE_NAME_BOOK_NOVEL, "bookId=?", new String[]{mBookList.get(position).bookID});
         if (delete > 0) {
             LogUtil.i("remove position = " + position);
+            BookUtil.removeBookFromLocal(mBookList.get(position));
             mBookList.remove(position);
             mNovelRcvAdapter.notifyItemRemoved(position);
         }
+    }
+
+    private void showDialog(final int position) {
+        final String[] arrayFruit = new String[]{"分享这本书", "从书架移除"};
+
+        Dialog alertDialog = new AlertDialog.Builder(mBootActivity)
+                .setItems(arrayFruit, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0://分享
+                                shareBook(position);
+                                break;
+                            case 1://移除
+                                removeBookFromNovel(position);
+                                break;
+                        }
+                    }
+                })
+                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .create();
+        alertDialog.show();
+    }
+
+    private void shareBook(int position) {
+        Book book = mBookList.get(position);
+        OnKeyShareUtil.showShare("看书喽", "小伙伴，这本《" + book.getBookName() + "》真好看，一起来看吧！！！");
     }
 }

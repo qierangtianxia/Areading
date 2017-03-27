@@ -11,10 +11,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import com.qrtx.areading.Constants;
 import com.qrtx.areading.R;
 import com.qrtx.areading.beans.Book;
 import com.qrtx.areading.utils.AppUtil;
 import com.qrtx.areading.utils.FileUtils;
+import com.qrtx.areading.utils.LogUtil;
+import com.qrtx.areading.utils.SPUtil;
 import com.qrtx.areading.utils.ScreenUtils;
 
 import java.io.File;
@@ -89,11 +92,13 @@ public class PageFactory {
     private Bitmap batteryBitmap;
 
     private OnReadStateChangeListener listener;
+    public static String mPercentStr;
 
     public PageFactory(Context context, String bookId, List<Book.Chapter> chapterList) {
 
         //读取保存的文字大小
         this(context, ScreenUtils.getScreenWidth(), ScreenUtils.getScreenHeight(),
+//                SPUtil.getInt(Constants.KEY_READ_FONT_SIZE, 30),
                 30,
                 bookId, chapterList);
     }
@@ -114,7 +119,7 @@ public class PageFactory {
 
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setTextSize(mFontSize);
-        mPaint.setTextSize(ContextCompat.getColor(context, R.color.chapter_content_day));
+//        mPaint.setTextSize(ContextCompat.getColor(context, R.color.chapter_content_day));
         mPaint.setColor(Color.BLACK);
         mTitlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mTitlePaint.setTextSize(mNumFontSize);
@@ -226,8 +231,11 @@ public class PageFactory {
                         mHeight - marginHeight - ScreenUtils.dpToPxInt(12), mTitlePaint);
             }
 
-            float percent = (float) currentChapter * 100 / chapterSize;
-            canvas.drawText(decimalFormat.format(percent) + "%", (mWidth - percentLen) / 2,
+
+//            float percent = (float) currentChapter * 100 / chapterSize;
+            float percent = (float) m_mbBufBeginPos * 100 / m_mpBufferLen;
+            mPercentStr = decimalFormat.format(percent) + "%";
+            canvas.drawText(mPercentStr, (mWidth - percentLen) / 2,
                     mHeight - marginHeight, mTitlePaint);
 
             String mTime = dateFormat.format(new Date());
@@ -239,6 +247,10 @@ public class PageFactory {
             // 保存阅读进度
 //            SettingManager.getInstance().saveReadProgress(bookId, currentChapter, m_mbBufBeginPos, m_mbBufEndPos);
         }
+    }
+
+    public int getCurrentChapter() {
+        return currentChapter;
     }
 
     /**
@@ -522,8 +534,12 @@ public class PageFactory {
         mFontSize = fontsize;
         mLineSpace = mFontSize / 5 * 2;
         mPaint.setTextSize(mFontSize);
+        LogUtil.i("(mFontSize + mLineSpace) = " + (mFontSize + mLineSpace));
+        LogUtil.i("fontsize = " + fontsize);
         mPageLineCount = mVisibleHeight / (mFontSize + mLineSpace);
         m_mbBufEndPos = m_mbBufBeginPos;
+        LogUtil.i("SIZE FONT", "setTextFont  fontsize = " + fontsize);
+        SPUtil.putInt(Constants.KEY_READ_FONT_SIZE, fontsize);
         nextPage();
     }
 

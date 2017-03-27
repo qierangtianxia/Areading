@@ -120,6 +120,7 @@ public class SPUtil {
     public static float getFloat(String key, Float defValue) {
 
         SharedPreferences sharedPreference = getSharedPreference();
+        sharedPreference.edit().clear();
         return sharedPreference.getFloat(key, defValue);
     }
 

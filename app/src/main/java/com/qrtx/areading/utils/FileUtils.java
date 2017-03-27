@@ -36,6 +36,10 @@ public class FileUtils {
         return Constants.PATH_BOOK_BASE + File.separator + bookId + File.separator + chapter + ".txt";
     }
 
+    public static String getBookPath(String bookId) {
+        return Constants.PATH_BOOK_BASE + File.separator + bookId;
+    }
+
     public static File getChapterFile(String bookId, int chapter) {
         File file = new File(getChapterPath(bookId, chapter));
         Log.i("Book", "获取文件：" + file.getAbsolutePath() + " size:" + file.length());
@@ -151,7 +155,7 @@ public class FileUtils {
 
 
         File file = new File(filePath);
-        Log.i("Book", "content = " + content);
+//        Log.i("Book", "content = " + content);
         try {
             FileOutputStream fout = new FileOutputStream(filePath, isAppend);
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fout));

@@ -16,32 +16,57 @@
         android:id="@+id/id_et_account"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/account" />
+        android:hint="@string/phonenumber"
+        android:inputType="phone"
+        android:maxLines="1"
+        android:text="15291773347" />
 
-    <EditText
-        android:id="@+id/id_et_pwd"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/password"
-        android:inputType="textPassword" />
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/id_et_pwd"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/password"
+            android:inputType="textPassword"
+            android:maxLines="1"
+            android:text="123456" />
+
+        <ToggleButton
+            android:id="@+id/id_tbtn_login"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@drawable/selector_btn_eye"
+            android:textOff="@null"
+            android:textOn="@null" />
+    </LinearLayout>
 
     <Button
         android:id="@+id/id_btn_login"
+        style="@style/ButtonStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:enabled="false"
+        android:layout_marginTop="10dp"
         android:text="@string/login" />
 
     <Button
         android:id="@+id/id_btn_register"
+        style="@style/ButtonStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:text="@string/register" />
 
     <Button
         android:id="@+id/id_btn_skip_login"
+        style="@style/ButtonStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:text="@string/skipLogin" />
 
 </LinearLayout>

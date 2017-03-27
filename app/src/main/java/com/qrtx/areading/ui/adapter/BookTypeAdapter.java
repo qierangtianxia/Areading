@@ -1,24 +1,25 @@
 package com.qrtx.areading.ui.adapter;
 
 import android.content.Context;
-import android.support.v4.app.Fragment;
+import android.content.Intent;
 import android.support.v4.view.PagerAdapter;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
+import com.qrtx.areading.Constants;
 import com.qrtx.areading.R;
 import com.qrtx.areading.beans.Book;
 import com.qrtx.areading.beans.BookType;
-import com.qrtx.areading.ui.fragment.BaseFragment;
+import com.qrtx.areading.ui.activity.BookDetailActivity;
+import com.qrtx.areading.utils.ToastUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 
 /**
  * Created by user on 17-3-14.
@@ -28,27 +29,12 @@ public class BookTypeAdapter extends PagerAdapter {
     private Context context;
     private ArrayList<BookType> bookTypes;
     private HashMap<Integer, ArrayList<Book>> bookMap;
-//    private ArrayList<Fragment> fragments;
 
 
-    public BookTypeAdapter(Context context, ArrayList<BookType> bookTypes) {
+    public BookTypeAdapter(Context context, ArrayList<BookType> bookTypes, HashMap<Integer, ArrayList<Book>> bookMap) {
         this.context = context;
+        this.bookMap = bookMap;
         this.bookTypes = bookTypes;
-        bookMap = new HashMap<>();
-        initData();
-    }
-
-    private void initData() {
-        for (int i = 0; i < bookTypes.size(); i++) {
-            ArrayList<Book> books = new ArrayList<>();
-            String typeName = bookTypes.get(i).name;
-            for (int j = 0; j < 15; j++) {
-                Book book = new Book(null, typeName + (j + 1), null);
-                book.setSummary("我是一本" + typeName + "类型的书");
-                books.add(book);
-            }
-            bookMap.put(i, books);
-        }
     }
 
     @Override
@@ -64,13 +50,25 @@ public class BookTypeAdapter extends PagerAdapter {
 
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
-//        ListView listView = new ListView(context);
-//        listView.setAdapter(new BookTypeLvAdapter(bookMap.get(position)));
-//        container.addView(listView);
-//        return listView;
         RecyclerView recyclerView = new RecyclerView(context);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        recyclerView.setAdapter(new RcvAdapter(bookMap.get(position)));
+        final ArrayList<Book> books = bookMap.get(bookTypes.get(position).id);
+        RcvAdapter rcvAdapter = new RcvAdapter(books);
+
+        rcvAdapter.setOnItemClickLitener(new ClickableRcvAdapter.OnItemClickLitener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Intent intent = new Intent(context, BookDetailActivity.class);
+                intent.putExtra(Constants.KEY_BOOK, books.get(position));
+                context.startActivity(intent);
+            }
+
+            @Override
+            public boolean onItemLongClick(View view, int position) {
+                return false;
+            }
+        });
+        recyclerView.setAdapter(rcvAdapter);
         container.addView(recyclerView);
         return recyclerView;
     }
@@ -89,44 +87,8 @@ public class BookTypeAdapter extends PagerAdapter {
         return getItem(position).name;
     }
 
-    private class BookTypeLvAdapter extends BaseAdapter {
-        private ArrayList<Book> books;
 
-        public BookTypeLvAdapter(ArrayList<Book> books) {
-            this.books = books;
-        }
-
-        @Override
-        public int getCount() {
-            return books.size();
-        }
-
-        @Override
-        public Book getItem(int position) {
-            return books.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            if (convertView == null) {
-                convertView = View.inflate(context, R.layout.item_book_type_lv, null);
-            }
-
-            TextView title = (TextView) convertView.findViewById(R.id.id_item_book_title);
-            TextView summary = (TextView) convertView.findViewById(R.id.id_item_book_summary);
-            Book book = getItem(position);
-            title.setText(book.getBookName());
-            summary.setText(book.getSummary());
-            return convertView;
-        }
-    }
-
-    private class RcvAdapter extends RecyclerView.Adapter<RcvAdapter.MyHolder> {
+    private class RcvAdapter extends ClickableRcvAdapter<RcvAdapter.MyHolder> {
         private ArrayList<Book> books;
 
         public RcvAdapter(ArrayList<Book> books) {
@@ -145,6 +107,7 @@ public class BookTypeAdapter extends PagerAdapter {
             Book book = books.get(position);
             holder.title.setText(book.getBookName());
             holder.summary.setText(book.getSummary());
+            bindListener(holder);
         }
 
         @Override

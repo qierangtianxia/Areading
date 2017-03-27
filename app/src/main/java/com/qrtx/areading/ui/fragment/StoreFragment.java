@@ -1,6 +1,7 @@
 package com.qrtx.areading.ui.fragment;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
@@ -10,9 +11,12 @@ import android.widget.TextView;
 
 import com.qrtx.areading.Constants;
 import com.qrtx.areading.R;
+import com.qrtx.areading.beans.Book;
 import com.qrtx.areading.beans.BookType;
 import com.qrtx.areading.net.API;
+import com.qrtx.areading.net.SimpleCommonCallback;
 import com.qrtx.areading.net.responses.Response;
+import com.qrtx.areading.ui.activity.LoginActivity;
 import com.qrtx.areading.ui.adapter.BookTypeAdapter;
 import com.qrtx.areading.utils.LogUtil;
 import com.qrtx.areading.utils.ProgressDialogUtil;
@@ -27,8 +31,9 @@ import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
 import org.xutils.x;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
 
 /**
  * Created by user on 17-2-28.
@@ -40,6 +45,7 @@ public class StoreFragment extends BaseFragment {
     private ViewPager mVpBookType;
     private TextView mTvError;
     private ArrayList<BookType> mBookTypes;
+    private HashMap<Integer, ArrayList<Book>> bookMap;
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
@@ -47,17 +53,20 @@ public class StoreFragment extends BaseFragment {
         setActionTitle(Constants.TITLE_PAGER_STORE);
         View bootView = addContentView(R.layout.fragment_store);
 
+
         initData();
         initView(bootView);
 
         //服务器有问题
-//        String token = SPUtil.getString(Constants.KEY_USER_TOKEN, null);
-//        if (token != null) {//用户已经登陆
-//            getBookType(token);
-//        }
-        //服务器有问题　　本地模拟数据
-        mBookTypes = getBookTypeFromLocal();
-        initPager();
+        String token = SPUtil.getString(Constants.KEY_USER_TOKEN, null);
+        if (token != null) {//用户已经登陆
+            getBookType(token);
+        } else {
+//            //服务器有问题　　本地模拟数据
+//            mBookTypes = getBookTypeFromLocal();
+//            initPager();
+            mTvError.setVisibility(View.VISIBLE);
+        }
     }
 
     private void initData() {
@@ -69,6 +78,18 @@ public class StoreFragment extends BaseFragment {
         mTlReadType = (TabLayout) bootView.findViewById(R.id.id_tably_read_type);
         mVpBookType = (ViewPager) bootView.findViewById(R.id.id_vp_type);
         mTvError = (TextView) bootView.findViewById(R.id.id_tv_error);
+
+        mTvError.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                String token = SPUtil.getString(Constants.KEY_USER_TOKEN, null);
+//                if (token != null) {
+//                    getBookType(token);
+//                }
+                SPUtil.remove(Constants.KEY_USER_TOKEN);
+                startActivity(new Intent(mBootActivity, LoginActivity.class));
+            }
+        });
     }
 
     /**
@@ -88,7 +109,6 @@ public class StoreFragment extends BaseFragment {
         mBannerNet.setOnItemClickListener(new FlyBanner.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
-                ToastUtils.showToast("点击了第" + position + "张图片");
             }
         });
     }
@@ -124,9 +144,8 @@ public class StoreFragment extends BaseFragment {
      *
      * @return
      */
-    public ArrayList<String> getBookType(String token) {
-//                                             396e2873-1af5-486c-be1d-724f9e2e4476
-        LogUtil.i("NET", "token = " + token);//396e2873-1af5-486c-be1d-724f9e2e4476
+    public ArrayList<String> getBookType(final String token) {
+        LogUtil.i("NET", "token = " + token);
         final ProgressDialog progressDialog = ProgressDialogUtil.showProgressDialog(mBootActivity, "正在加载．．．");
         RequestParams entity = new RequestParams();
         entity.setAsJsonContent(true);
@@ -149,16 +168,23 @@ public class StoreFragment extends BaseFragment {
                         mBookTypes = new ArrayList<>();
                         for (int i = 0; i < types.length(); i++) {
                             JSONObject typeJson = types.optJSONObject(i);
-                            BookType bookType = new BookType(typeJson.optInt("id"), typeJson.optString("name"));
+                            String name = typeJson.optString("name");
+                            if ("测试".equals(name)) {
+                                name = "异世";
+                            }
+                            BookType bookType = new BookType(typeJson.optInt("id"), name);
                             mBookTypes.add(bookType);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
 
-                    if (mBookTypes != null && mBookTypes.size() > 0) {
-                        initPager();
-                    }
+                    //根据获取出来的小说分类，获取小说
+                    getBookList(token, 20);
+
+//                    if (mBookTypes != null && mBookTypes.size() > 0) {
+//                        initPager();
+//                    }
                 }
             }
 
@@ -197,8 +223,78 @@ public class StoreFragment extends BaseFragment {
         return bookTypes;
     }
 
+
     private void initPager() {
-        mVpBookType.setAdapter(new BookTypeAdapter(mBootActivity, mBookTypes));
+        mVpBookType.setAdapter(new BookTypeAdapter(mBootActivity, mBookTypes, bookMap));
         mTlReadType.setupWithViewPager(mVpBookType);
+    }
+
+    private void getBookList(String token, int count) {
+        LogUtil.i("GET BOOK", " -----------getBookList");
+        RequestParams entity = new RequestParams();
+        entity.setAsJsonContent(true);
+        entity.addBodyParameter(Constants.KEY_USER_TOKEN, token);
+        entity.addBodyParameter(Constants.KEY_USER_BOOK_COUNT, count + "");
+        entity.addBodyParameter(Constants.KEY_USER_BOOK_PAGE, 0 + "");
+        entity.setUri(API.URL_BASE_GETBOOKLIST);
+        x.http().post(entity, new SimpleCommonCallback() {
+            @Override
+            public void onSuccess(String result) {
+                super.onSuccess(result);
+                LogUtil.i("GET BOOK", "result = " + result);
+                Response response = Response.obtionBaseResponse(result);
+                if (response.responseCode != Response.RESPONSE_OK) {
+                    ToastUtils.showToast(response.responseMsg);
+                } else {
+                    try {
+                        JSONObject jsonObject = new JSONObject(result);
+                        JSONArray bookListJson = jsonObject.getJSONArray("booklist");
+
+                        bookMap = new HashMap<Integer, ArrayList<Book>>();
+                        for (BookType bookType : mBookTypes) {
+                            bookMap.put(bookType.id, new ArrayList<Book>());
+                        }
+                        Set<Integer> typeIdSet = bookMap.keySet();
+                        for (int i = 0; i < bookListJson.length(); i++) {
+                            JSONObject bookJson = bookListJson.optJSONObject(i);
+//                            String bookID = MD5Util.MD5(bookJson.optString("bookID"));
+                            String bookID = bookJson.optString("bookID");
+                            String bookname = bookJson.optString("bookname");
+                            String author = bookJson.optString("author");
+                            String wordCount = bookJson.optString("wordCount");
+                            String summary = bookJson.optString("summary");
+                            String iconUrl = bookJson.optString("iconUrl");
+                            String type = bookJson.optString("type");
+                            //获取小说章节
+                            JSONArray catalogsJson = bookJson.optJSONArray("catalogue");
+//                            for (int j = 0; j < catalogsJson.length(); j++) {
+//                                JSONObject catalogJson = catalogsJson.optJSONObject(j);
+//                                new Book.Chapter(j + "", catalogJson.toString());
+//                            }
+
+                            Book book = new Book(bookID, bookname, type, author, summary, wordCount, catalogsJson.length());
+                            Integer typeInt = Integer.valueOf(type);
+                            if (typeIdSet.contains(typeInt)) {
+                                bookMap.get(typeInt).add(book);
+                            }
+                        }
+
+                        if (bookMap != null && bookMap.size() > 0) {
+                            initPager();
+                        } else {
+
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                super.onError(ex, isOnCallback);
+                LogUtil.e("GET BOOK", "ex = " + ex);
+            }
+        });
     }
 }

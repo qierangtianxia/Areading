@@ -10,21 +10,42 @@ import java.io.File;
 
 public class Constants {
     //访问网络　和　数据库存储键
+    public static final String KEY_FILE = "file";
     public static final String KEY_USER_PHONE = "phone";
     public static final String KEY_USER_SEX = "sex";
     public static final String KEY_USER_NICK = "nick";
     public static final String KEY_USER_ICON = "icon";
+    public static final String KEY_USER_ICON_ID = "resId";
     public static final String KEY_USER_PWD = "password";
     public static final String KEY_USER_TOKEN = "token";
+    public static final String KEY_USER_BOOK_COUNT = "count";
+    public static final String KEY_USER_BOOK_PAGE = "page";
+    public static final String KEY_USER_BOOK_ID = "bookID";
+    public static final String KEY_USER_CHAPTER_NO = "catalogueNo";
+    public static final String KEY_USER_COMMENT = "comment";
+    public static final String KEY_READ_CHAPTER = "chapterPro";
+    public static final String KEY_READ_POS_END = "endPro";
+    public static final String KEY_READ_POS_START = "startPro";
+    public static final String KEY_READ_BOOK_MARK = "bookMark";
+    public static final String KEY_READ_FONT_SIZE = "fontSize";
+    public static final String KEY_READ_PAGER_THEME = "fontSize";
+
+    //豆瓣
+    public static final String KEY_COUNT = "count";
+    public static final String KEY_START = "start";
 
     //文件存储路径
     public static final String PATH_BOOK_BASE = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "Areading" + File.separator + "books";
 
     //请求码
     public static final int REQUEST_CODE_REGISTER = 0x0001;
+    public static final int REQUEST_CODE_SHOW_BOOKMARK = 0x0002;
+    public static final int REQUEST_CODE_CAMERA = 0x0003;
+    public static final int REQUEST_CODE_ALBUM = 0x0004;
 
     //结果码
     public static final int RESULT_CODE_REGISTER = 0x1001;
+    public static final int RESULT_CODE_SHOW_BOOKMARK = 0x1002;
 
     public static final String TITLE_PAGER_NOVEL = "搜狗阅读";
     public static final String TITLE_PAGER_STORE = "书城";
@@ -35,7 +56,9 @@ public class Constants {
     public static final String DATABASE_NAME = "areadingDB";
     public static final String TABLE_NAME_READ_HISTORY = "readHistory";
     public static final String TABLE_NAME_BOOK_NOVEL = "novelTavle";
+    public static final String TABLE_NAME_BOOK_MARK = "bookmark";
     public static final String TABLE_NAME_BOOK_CHAPTER = "Chapter";
+    public static final String KEY_HOTAUTHOR = "hotAuthor";
 
     public static String BODY = "楔子   \n" +
             "天圣皇朝立朝百年，帝王睿智，臣子忠心，国富兵强，百姓安居乐业。是神州大陆最大的国家。百年繁华。小国不敢望其项背，岁岁纳贡，年年称臣。\n" +

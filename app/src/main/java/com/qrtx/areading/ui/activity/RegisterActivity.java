@@ -5,11 +5,15 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.RadioGroup;
+import android.widget.ToggleButton;
 
 import com.qrtx.areading.Constants;
 import com.qrtx.areading.R;
@@ -30,12 +34,14 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     private Button mBtnConfirm, mBtnCancle;
     private ProgressDialog mLoginDialog;
     private RadioGroup mSexSelect;
+    private ToggleButton mToggleButton;
     private int mSex = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        setTitle(R.string.register);
         initDatas();
         initViews();
         initEvents();
@@ -50,6 +56,18 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                 mSex = checkedId == R.id.id_rbtn_boy ? 1 : 0;
             }
         });
+
+        mToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    mEtPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                } else {
+                    mEtPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                }
+                mEtPassword.setSelection(mEtPassword.length());
+            }
+        });
     }
 
     private void initDatas() {
@@ -57,10 +75,12 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void initViews() {
+        mToggleButton = (ToggleButton) findViewById(R.id.id_tbtn_register);
         mEtAccount = (EditText) findViewById(R.id.id_et_phone);
         mEtPassword = (EditText) findViewById(R.id.id_et_register_pwd);
         mEtNick = (EditText) findViewById(R.id.id_et_nick);
         mSexSelect = (RadioGroup) findViewById(R.id.id_sex_radio);
+        mSexSelect.check(R.id.id_rbtn_boy);
 
         mBtnConfirm = (Button) findViewById(R.id.id_btn_confirm);
         mBtnCancle = (Button) findViewById(R.id.id_btn_cancle);

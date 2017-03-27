@@ -14,18 +14,55 @@ import java.util.ArrayList;
 
 public class Book implements Serializable {
     public ArrayList<Chapter> chapterList;//章节列表集合
+    private int chapterCount;
     public String bookID;
     private String bookName;
     private String author;
     private Bitmap bookIcon;
     private String bookPath;
     private String summary;
+    private String wordCount;
+    private String type;
+
+    public Book(String bookID, String bookName, String type, String author, String summary, String wordCount, int chapterCount) {
+        this.bookID = bookID;
+        this.bookName = bookName;
+        this.author = author;
+        this.type = type;
+        this.summary = summary;
+        this.wordCount = wordCount;
+        this.chapterCount = chapterCount;
+    }
 
     public Book(String bookID, String bookName, Bitmap bookIcon) {
         this.bookID = bookID;
         this.bookName = bookName;
         this.bookIcon = bookIcon;
         chapterList = new ArrayList<>();
+    }
+
+    public int getChapterCount() {
+        return chapterCount;
+    }
+
+    public void setChapterCount(int chapterCount) {
+        this.chapterCount = chapterCount;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getWordCount() {
+        return wordCount;
+    }
+
+    public void setWordCount(String wordCount) {
+        this.wordCount = wordCount;
     }
 
     public String getSummary() {

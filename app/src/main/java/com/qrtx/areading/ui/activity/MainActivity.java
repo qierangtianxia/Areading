@@ -24,7 +24,7 @@ import com.qrtx.areading.utils.SPUtil;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final int PAGER_NOVEL = 0x0000;
@@ -92,7 +92,8 @@ public class MainActivity extends AppCompatActivity
                 if (SPUtil.getString(Constants.KEY_USER_TOKEN, null) == null) {
                     startActivity(new Intent(MainActivity.this, LoginActivity.class));
                 } else {
-                    startActivity(new Intent(MainActivity.this, PersionActivity.class));
+                    //开启个人中心界面
+//                    startActivity(new Intent(MainActivity.this, PersionActivity.class));
                 }
             }
         });
@@ -111,7 +112,6 @@ public class MainActivity extends AppCompatActivity
         mDrawerLayout = (DrawerLayout) findViewById(R.id.id_drawerlayout_main);
         mRadioGroup.check(R.id.id_rb_novel);
 
-        initMainHeaderView();
 
         ArrayList<Fragment> fragments = new ArrayList<>();
         fragments.add(new NovelFragment());
@@ -134,8 +134,6 @@ public class MainActivity extends AppCompatActivity
         } else {
             mTvUserInfor.setText("请先登陆账号");
         }
-
-        LogUtil.d("LOG OUT nick = " + nick + "   phone = " + phone);
     }
 
     /**
@@ -192,12 +190,19 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        initMainHeaderView();
+    }
+
+    @Override
     public void onBackPressed() {
 
         if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
             mDrawerLayout.closeDrawers();
         } else {
-            super.onBackPressed();
+//            super.onBackPressed();
+            moveTaskToBack(true);
         }
     }
 }

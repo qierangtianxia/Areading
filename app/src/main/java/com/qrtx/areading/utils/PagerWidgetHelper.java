@@ -4,9 +4,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.ViewGroup;
 
+import com.qrtx.areading.Constants;
 import com.qrtx.areading.beans.Book;
 import com.qrtx.areading.beans.ReadTheme;
 import com.qrtx.areading.ui.view.readView.OnReadStateChangeListener;
@@ -26,6 +28,7 @@ import java.util.List;
  */
 
 public class PagerWidgetHelper {
+
     private Context mContext;
     private boolean isReceived = false;
     private PageWidget mPageWidget;
@@ -37,7 +40,7 @@ public class PagerWidgetHelper {
     private Receiver mReceiver;//广播接收者
     private SimpleDateFormat mSdf = new SimpleDateFormat("HH:mm");
 
-    private int mCurrentChapter = 0;
+    public static int mCurrentChapter = 0;
     //是否开始阅读章节
     private boolean mIsStartRead = false;
 
@@ -52,10 +55,13 @@ public class PagerWidgetHelper {
 
         mReadWidgetContainer = readWidgetContainer;
         mCurrentBook = book;
-        mChapterList = book.chapterList;
+        mChapterList = new ArrayList<>();
         mContext = ctx;
         mChapterFiles = BookUtil.getBookChapterFiles(mCurrentBook);
 
+        if (mChapterFiles == null) {
+            return;
+        }
         if (!isReceived) {
             mReceiver = new Receiver();
             mContext.registerReceiver(mReceiver, sIntentFilter);
@@ -65,7 +71,24 @@ public class PagerWidgetHelper {
         LogUtil.e("BookTest", "mChapterFiles.length = " + mChapterFiles.length);
         initChapterList();
         LogUtil.e("BookTest", "mChapterList.size() = " + mChapterList.size());
+
+
+        initReadPro();
+
+
         initPagerWidget();
+    }
+
+    public Bitmap getCurrentBag() {
+        return ThemeManager.getThemeDrawable(theme);
+    }
+
+    public int getCurrentBagID() {
+        return theme;
+    }
+
+    private void initReadPro() {
+        mReadPos = BookUtil.getReadProgress(mCurrentBook.bookID);
     }
 
     private static PagerWidgetHelper mPagerWidgetHelper;
@@ -82,9 +105,20 @@ public class PagerWidgetHelper {
         mPageWidget = new PageWidget(mContext, mCurrentBook.bookID, mChapterList, new ReadListener());// 页面
         mReadWidgetContainer.removeAllViews();
         mReadWidgetContainer.addView(mPageWidget);
+
+
+        setPageTheme(SPUtil.getInt(Constants.KEY_READ_PAGER_THEME, 0));
+        int size = SPUtil.getInt(Constants.KEY_READ_FONT_SIZE, textSizeArr[0]);
+        LogUtil.i("SIZE FONT", "size = " + size + "     textSizeArr[0] = " + textSizeArr[0]);
+        if (size <= 0) {
+            setFontSize(30);
+        } else {
+            setFontSize(size);
+        }
+
         //显示小说,当前数据是 内存里面的，合理的做法是 先判断本地 有没有缓存
         if (mChapterFiles.length > 0) {
-            showChapterRead(mChapterList.get(0), 1);
+            showChapterRead(mChapterList.get(0), mReadPos[0]);
         }
     }
 
@@ -120,11 +154,19 @@ public class PagerWidgetHelper {
             mIsStartRead = true;
             if (!mPageWidget.isPrepared) {
                 mPageWidget.init(ThemeManager.LEATHER);
-                LogUtil.e("BookTest", "<---------jumpToChapter---------> mCurrentChapter = " + mCurrentChapter);
+                LogUtil.e("BookTest", "<-------  if --jumpToChapter---------> mCurrentChapter = " + mCurrentChapter);
             } else {
-                mPageWidget.jumpToChapter(mCurrentChapter);
+                LogUtil.e("BookTest", "<-------  else --jumpToChapter---------> mCurrentChapter = " + mCurrentChapter);
+//                mPageWidget.jumpToChapter(mCurrentChapter);
+                mPageWidget.jumpToChapter(mReadPos);
+//                mPageWidget.jumpToChapter(2);
             }
         }
+    }
+
+    public void jumpToChapter(int[] pos) {
+        LogUtil.i("SKIP CHAPTER", "跳转第　" + pos[0] + "　章");
+        mPageWidget.jumpToChapter(pos);
     }
 
     //将章节内容缓存在本地
@@ -134,6 +176,10 @@ public class PagerWidgetHelper {
             return;
         }
         FileUtils.writeFile(file.getAbsolutePath(), StringUtils.formatContent(data.body), false);
+    }
+
+    public void jumpToChapter(int chapterNo) {
+        jumpToChapter(new int[]{chapterNo, 0, 0});
     }
 
     //将章节内容缓存在本地
@@ -159,7 +205,9 @@ public class PagerWidgetHelper {
 
         @Override
         public void onPageChanged(int chapter, int page) {
-
+            if (mListener != null) {
+                mListener.onPageChanged(chapter);
+            }
         }
 
         @Override
@@ -170,27 +218,29 @@ public class PagerWidgetHelper {
             ToastUtils.showToast("读取不到文件");
         }
 
-        int theme = 0;
 
         @Override
         public void onCenterClick() {
             //被点击
             if (mListener != null) {
                 mListener.onCenterClick();
-//                setPageTheme((theme) % getReaderThemeList().size());
-//                theme++;
             }
         }
 
         @Override
         public void onFlip() {
+            if (mListener != null) {
+                mListener.onFlip();
+            }
         }
 
 
         @Override
         public void onSaveReadProgress(String bookId, int chapter, int beginPos, int endPos) {
-            Log.i("callback", "onSaveReadProgress : bookId:" + bookId + " chapter:" + chapter + " beginPos:" + beginPos + " endPos:" + endPos);
-
+//            LogUtil.i("onSaveReadProgress", "--------onSaveReadProgress--------  ");
+//            LogUtil.i("onSaveReadProgress", "--------beginPos--------  " + beginPos);
+//            LogUtil.i("onSaveReadProgress", "--------endPos--------  " + endPos);
+//            LogUtil.i("onSaveReadProgress", "--------chapter--------  " + chapter);
             mReadPos = new int[]{chapter, beginPos, endPos};
         }
 
@@ -199,6 +249,11 @@ public class PagerWidgetHelper {
             return mReadPos;
         }
 
+    }
+
+
+    public int getCurrentChapter() {
+        return mPageWidget.getCurrentChapter();
     }
 
     private class Receiver extends BroadcastReceiver {
@@ -219,6 +274,9 @@ public class PagerWidgetHelper {
 
     public void recycle() {
 
+        LogUtil.i("recycle", "--------recycle--------  ");
+        saveReadProgress();
+
         if (isReceived && mReceiver != null) {
             mContext.unregisterReceiver(mReceiver);
         }
@@ -227,6 +285,22 @@ public class PagerWidgetHelper {
         mPageWidget.isPrepared = false;
         mIsStartRead = false;
         mPagerWidgetHelper = null;
+    }
+
+    /**
+     * 保存读书进度
+     */
+    private void saveReadProgress() {
+        BookUtil.saveReadProgress(mCurrentBook.bookID, mReadPos);
+    }
+
+    /**
+     * 获取当前读书进度
+     *
+     * @return
+     */
+    public int[] getCurrentPro() {
+        return mReadPos;
     }
 
     /**
@@ -248,8 +322,28 @@ public class PagerWidgetHelper {
         mPageWidget.setTheme(theme);
     }
 
+    /**
+     * 随机生成主题
+     */
+    private int theme;
+
+    public void setPageThemeRandom() {
+        setPageTheme((theme) % getReaderThemeList().size());
+        theme++;
+
+    }
+
     public void setFontSize(int fontSizePx) {
         mPageWidget.setFontSize(fontSizePx);
+    }
+
+
+    private static int textSizeArr[] = {30, 40, 50, 60};
+    int i = 1;
+
+    public void setFontSizeRandom() {
+        setFontSize(textSizeArr[i % textSizeArr.length]);
+        i++;
     }
 
     public void setTextColor(int textColor, int titleColor) {
@@ -263,13 +357,17 @@ public class PagerWidgetHelper {
     /**
      * 回调接口
      */
-    public interface OnCenterClickListener {
-        public void onCenterClick();
+    public interface onPagerListener {
+        void onCenterClick();
+
+        void onFlip();
+
+        void onPageChanged(int chapter);
     }
 
-    private OnCenterClickListener mListener;
+    private onPagerListener mListener;
 
-    public void setOnCenterClickListener(OnCenterClickListener listener) {
+    public void setOnPagerListener(onPagerListener listener) {
         mListener = listener;
     }
 }

@@ -12,7 +12,7 @@ public class Response {
 
     public int responseCode;
     public String responseMsg;
-
+    public String content;
 
     public static Response obtionBaseResponse(String jsonStr) {
         Response response = new Response();
@@ -20,6 +20,7 @@ public class Response {
             JSONObject jsonObject = new JSONObject(jsonStr);
             response.responseCode = jsonObject.getInt("responseCode");
             response.responseMsg = jsonObject.getString("responseMsg");
+            response.content = jsonObject.optString("content");
         } catch (JSONException e) {
             e.printStackTrace();
         }

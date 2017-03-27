@@ -1,0 +1,56 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_date_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#fff"
+        android:drawableLeft="@drawable/diary_img"
+        android:drawablePadding="10dp"
+        android:gravity="center_vertical"
+        android:padding="10dp"
+        android:text="2019.15.3"
+        android:textColor="#000"
+        android:textSize="18sp" />
+
+    <View
+        android:layout_width="1px"
+        android:layout_height="20dp"
+        android:layout_marginLeft="20dp"
+        android:background="#a000" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp">
+
+        <View
+            android:layout_width="1px"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="20dp"
+            android:background="#a000" />
+
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:src="@drawable/diary_line" />
+
+        <TextView
+            android:id="@+id/tv_diary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/image"
+            android:layout_toRightOf="@id/image"
+            android:background="#fff"
+            android:paddingBottom="10dp"
+            android:paddingLeft="5dp"
+            android:paddingTop="10dp"
+            android:text="鲸鱼在哪里"
+            android:textColor="#000" />
+    </RelativeLayout>
+
+</LinearLayout>

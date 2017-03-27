@@ -18,7 +18,7 @@ import java.util.ArrayList;
  * Created by user on 17-3-2.
  */
 
-public class NovelRcvAdapter extends RecyclerView.Adapter<NovelRcvAdapter.MyViewHolder> {
+public class NovelRcvAdapter extends ClickableRcvAdapter<NovelRcvAdapter.MyViewHolder> {
     private ArrayList<Book> books;
     private LayoutInflater inflater;
 
@@ -49,23 +49,7 @@ public class NovelRcvAdapter extends RecyclerView.Adapter<NovelRcvAdapter.MyView
         if (book.getBookIcon() != null) {
             holder.bookIcon.setImageBitmap(book.getBookIcon());
         }
-        if (mOnItemClickLitener != null) {
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int pos = holder.getLayoutPosition();
-                    mOnItemClickLitener.onItemClick(v, pos);
-
-                }
-            });
-            holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    int pos = holder.getLayoutPosition();
-                    return mOnItemClickLitener.onItemLongClick(v, pos);
-                }
-            });
-        }
+        bindListener(holder);
     }
 
     class MyViewHolder extends RecyclerView.ViewHolder {
@@ -77,18 +61,6 @@ public class NovelRcvAdapter extends RecyclerView.Adapter<NovelRcvAdapter.MyView
             bookIcon = (ImageView) itemView.findViewById(R.id.id_book_icon);
             bookName = (TextView) itemView.findViewById(R.id.id_book_name);
         }
-    }
-
-    public interface OnItemClickLitener {
-        void onItemClick(View view, int position);
-
-        boolean onItemLongClick(View view, int position);
-    }
-
-    private OnItemClickLitener mOnItemClickLitener;
-
-    public void setOnItemClickLitener(OnItemClickLitener mOnItemClickLitener) {
-        this.mOnItemClickLitener = mOnItemClickLitener;
     }
 }
 

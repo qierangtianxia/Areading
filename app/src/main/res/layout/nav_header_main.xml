@@ -6,7 +6,8 @@
     android:orientation="horizontal"
     android:padding="15dp">
 
-    <ImageView
+
+    <com.qrtx.areading.ui.view.CircleHeadImageView
         android:id="@+id/id_user_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

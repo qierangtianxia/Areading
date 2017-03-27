@@ -11,12 +11,14 @@
         android:id="@+id/id_book_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@mipmap/notification_icon" />
+        android:src="@mipmap/book_default" />
 
     <TextView
         android:id="@+id/id_book_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/booname" />
+        android:layout_marginTop="5dp"
+        android:text="@string/booname"
+        android:textSize="10sp" />
 
 </LinearLayout>

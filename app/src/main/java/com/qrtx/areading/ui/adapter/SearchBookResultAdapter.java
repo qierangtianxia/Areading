@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.qrtx.areading.R;
 import com.qrtx.areading.beans.Book;
+import com.qrtx.areading.utils.BookUtil;
 
 import java.util.ArrayList;
 
@@ -48,19 +49,23 @@ public class SearchBookResultAdapter extends BaseAdapter {
         if (convertView == null) {
             convertView = View.inflate(ctx, R.layout.item_search_book_result, null);
             MyViewHolder viewHolder = new MyViewHolder();
-            viewHolder.textView = (TextView) convertView.findViewById(R.id.id_book_path);
+            viewHolder.textViewPath = (TextView) convertView.findViewById(R.id.id_book_path);
+            viewHolder.textViewName = (TextView) convertView.findViewById(R.id.id_book_name);
             viewHolder.checkBox = (CheckBox) convertView.findViewById(R.id.id_cb_book_ischeck);
             convertView.setTag(viewHolder);
         }
         MyViewHolder viewHolder = (MyViewHolder) convertView.getTag();
 
-        viewHolder.textView.setText(getItem(position));
+        Book book = BookUtil.obtionBook(getItem(position));
+
+        viewHolder.textViewPath.setText(getItem(position));
+        viewHolder.textViewName.setText("书名：" + book.getBookName());
         viewHolder.checkBox.setChecked(isChecked(position));
         return convertView;
     }
 
     private class MyViewHolder {
-        TextView textView;
+        TextView textViewPath, textViewName;
         CheckBox checkBox;
     }
 
@@ -68,13 +73,20 @@ public class SearchBookResultAdapter extends BaseAdapter {
         if (checkPositionList == null) {
             checkPositionList = new ArrayList<>();
         }
-        if (checkPositionList.contains(position)) {
-            Integer integer = Integer.valueOf(position);
-            checkPositionList.remove(integer);
-        } else {
+        if (!checkPositionList.contains(position)) {
             checkPositionList.add(position);
+            notifyDataSetChanged();
         }
-        notifyDataSetChanged();
+    }
+
+    public void disCheckedPosition(int position) {
+        if (checkPositionList == null) {
+            checkPositionList = new ArrayList<>();
+        }
+        if (checkPositionList.contains(position)) {
+            checkPositionList.remove(Integer.valueOf(position));
+            notifyDataSetChanged();
+        }
     }
 
     public boolean isChecked(int position) {

@@ -15,7 +15,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Scroller;
 
+import com.qrtx.areading.Constants;
 import com.qrtx.areading.beans.Book;
+import com.qrtx.areading.utils.BookUtil;
+import com.qrtx.areading.utils.LogUtil;
+import com.qrtx.areading.utils.SPUtil;
 import com.qrtx.areading.utils.ScreenUtils;
 import com.qrtx.areading.utils.ThemeManager;
 import com.qrtx.areading.utils.ToastUtils;
@@ -82,6 +86,7 @@ public class PageWidget extends View {
     public PageWidget(Context context, String bookId, List<Book.Chapter> chapterList,
                       OnReadStateChangeListener listener) {
         super(context);
+
         this.listener = listener;
         this.bookId = bookId;
         mPath0 = new Path();
@@ -117,9 +122,11 @@ public class PageWidget extends View {
             pagefactory.setOnReadStateChangeListener(listener);
             try {
                 pagefactory.setBgBitmap(ThemeManager.getThemeDrawable(theme));
+//                setTheme(SPUtil.getInt(Constants.KEY_READ_PAGER_THEME, 0));
+//                setFontSize(SPUtil.getInt(Constants.KEY_READ_FONT_SIZE, 30));
                 // 自动跳转到上次阅读位置
-//                int pos[] = SettingManager.getInstance().getReadProgress(bookId);
-                int pos[] = {1, 0, 0};
+                int pos[] = BookUtil.getReadProgress(bookId);
+//                int pos[] = {1, 2998, 3598};
                 int ret = pagefactory.openBook(pos[0], new int[]{pos[1], pos[2]});
 //                Log.i("上次阅读位置：chapter=" + pos[0] + " startPos=" + pos[1] + " endPos=" + pos[2]);
                 if (ret == 0) {
@@ -608,6 +615,11 @@ public class PageWidget extends View {
         return true;
     }
 
+
+    int downX, downY;
+    boolean isPressCenter = false;
+    boolean isMove = false;
+
     @Override
     public boolean onTouchEvent(MotionEvent e) {
         if (e.getAction() == MotionEvent.ACTION_DOWN) {
@@ -618,35 +630,99 @@ public class PageWidget extends View {
                 listener.onCenterClick();
                 return false;//停止向下分发事件
             }
-            abortAnimation();
-            calcCornerXY(e.getX(), e.getY());
             pagefactory.onDraw(mCurrentPageCanvas);
             if (x < mScreenWidth / 2) {// 从左翻
                 if (!pagefactory.prePage()) {
                     ToastUtils.showSingleToast("没有上一页啦");
                     return false;
+                } else {
+                    pagefactory.onDraw(mNextPageCanvas);
+                    abortAnimation();
+                    calcCornerXY(e.getX(), e.getY());
                 }
-                pagefactory.onDraw(mNextPageCanvas);
             } else if (x >= mScreenWidth / 2) {// 从右翻
                 if (!pagefactory.nextPage()) {
                     ToastUtils.showSingleToast("没有下一页啦");
                     return false;
+                } else {
+                    pagefactory.onDraw(mNextPageCanvas);
+                    abortAnimation();
+                    calcCornerXY(e.getX(), e.getY());
                 }
-                pagefactory.onDraw(mNextPageCanvas);
             }
             listener.onFlip();
             setBitmaps(mCurPageBitmap, mNextPageBitmap);
         }
         boolean ret = doTouchEvent(e);
         return ret;
+
+
+//        switch (e.getAction()) {
+//            case MotionEvent.ACTION_DOWN:
+//                downX = (int) e.getX();
+//                downY = (int) e.getY();
+//
+//                if (downX >= mScreenWidth / 3 && downX <= mScreenWidth * 2 / 3
+//                        && downY >= mScreenHeight / 3 && downY <= mScreenHeight * 2 / 3) {
+//                    listener.onCenterClick();
+//                    return false;//停止向下分发事件
+////                    LogUtil.i("onTouchEvent", "onTouchEvent ACTION_DOWN");
+////                    isPressCenter = true;
+//                }
+////                abortAnimation();
+//                calcCornerXY(e.getX(), e.getY());
+//                pagefactory.onDraw(mCurrentPageCanvas);
+//                if (downX < mScreenWidth / 2) {// 从左翻
+//                    if (!pagefactory.prePage()) {
+//                        ToastUtils.showSingleToast("没有上一页啦");
+//                        return false;
+//                    }
+//                    pagefactory.onDraw(mNextPageCanvas);
+//                } else if (downX >= mScreenWidth / 2) {// 从右翻
+//                    if (!pagefactory.nextPage()) {
+//                        ToastUtils.showSingleToast("没有下一页啦");
+//                        return false;
+//                    }
+//                    pagefactory.onDraw(mNextPageCanvas);
+//                }
+//                listener.onFlip();
+//                setBitmaps(mCurPageBitmap, mNextPageBitmap);
+//                break;
+//            case MotionEvent.ACTION_MOVE:
+////                isPressCenter = false;
+//                break;
+//            case MotionEvent.ACTION_UP:
+//
+////                LogUtil.i("onTouchEvent", "onTouchEvent ACTION_UP  isPressCenter = " + isPressCenter);
+////
+////                if (!isPressCenter) {
+////                    break;
+////                }
+////                int offsetX = Math.abs(downX - (int) e.getX());
+////                int offsetY = Math.abs(downY - (int) e.getY());
+////                int offsetLimit = 10;
+////                if (offsetX <= offsetLimit && offsetY <= offsetLimit) {
+////                    listener.onCenterClick();
+////                    isPressCenter = false;
+////                    LogUtil.i("onTouchEvent", "onTouchEvent -------- onCenterClick ");
+////                }
+//                break;
+//        }
+//        return doTouchEvent(e);
     }
 
-    public void jumpToChapter(int chapter) {
+    public int getCurrentChapter() {
+        return pagefactory.getCurrentChapter();
+    }
+
+
+    public void jumpToChapter(int[] readPro) {
         abortAnimation();
-        pagefactory.openBook(chapter, new int[]{0, 0});
+        pagefactory.openBook(readPro[0], new int[]{readPro[1], readPro[2]});
         pagefactory.onDraw(mCurrentPageCanvas);
         pagefactory.onDraw(mNextPageCanvas);
         postInvalidate();
+        listener.onPageChanged(readPro[0], 0);
     }
 
     public void nextPage() {
@@ -675,13 +751,12 @@ public class PageWidget extends View {
 
     public synchronized void setFontSize(final int fontSizePx) {
         pagefactory.setTextFont(fontSizePx);
+        LogUtil.i("save fontsize    fontSizePx = " + fontSizePx);
         if (isPrepared) {
             abortAnimation();
             pagefactory.onDraw(mCurrentPageCanvas);
             pagefactory.onDraw(mNextPageCanvas);
 
-            //保存字体大小
-            //SettingManager.getInstance().saveFontSize(bookId, fontSizePx);
             postInvalidate();
         }
     }
@@ -706,11 +781,9 @@ public class PageWidget extends View {
                 postInvalidate();
             }
         }
-        if (theme < 5) {
 
-            //保存选择的皮肤
-            //SettingManager.getInstance().saveReadTheme(theme);
-        }
+        //保存选择的皮肤
+        SPUtil.putInt(Constants.KEY_READ_PAGER_THEME, theme);
     }
 
     public void setBattery(int battery) {

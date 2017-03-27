@@ -9,12 +9,16 @@
     </style>
 
     <style name="AppTheme.NoActionBar">
+        <item name="android:textColorPrimary">@android:color/white</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="Fullscreen" parent="@android:style/Theme.Black.NoTitleBar.Fullscreen">
+    <style name="AppTheme.NoActionBar.WebActivity">
+        <item name="colorPrimaryDark">@color/read_theme_white</item>
     </style>
+
+    <style name="Fullscreen" parent="@android:style/Theme.Black.NoTitleBar.Fullscreen"></style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
@@ -27,7 +31,32 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:button">@null</item>
         <item name="android:gravity">center</item>
-        <item name="android:textSize">18sp</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="ButtonStyle">
+        <item name="android:background">@drawable/selector_button</item>
+        <item name="android:textColor">@color/read_theme_white</item>
+    </style>
+
+    <style name="ProButtonStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/shape_bag_pro_btn</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="ProTextViewStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">1dp</item>
+        <item name="android:background">#fff</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:textColor">#000</item>
+        <item name="android:textSize">20sp</item>
     </style>
 
     <style name="FullscreenTheme" parent="AppTheme">

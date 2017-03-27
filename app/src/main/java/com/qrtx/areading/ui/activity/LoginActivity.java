@@ -6,9 +6,13 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ToggleButton;
 
 import com.qrtx.areading.Constants;
 import com.qrtx.areading.R;
@@ -25,10 +29,11 @@ import org.json.JSONObject;
 import org.xutils.http.RequestParams;
 import org.xutils.x;
 
-public class LoginActivity extends AppCompatActivity implements TextWatcher, View.OnClickListener {
+public class LoginActivity extends BaseActivity implements TextWatcher, View.OnClickListener {
 
     private EditText mEtAccount, mEtPassword;
     private Button mBtnLogin, mBtnRegister, mBtnSkipLogin;
+    private ToggleButton mToggleButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +44,7 @@ public class LoginActivity extends AppCompatActivity implements TextWatcher, Vie
         }
 
         setContentView(R.layout.activity_login);
-
+        setTitle(R.string.login);
         initDatas();
         initViews();
         initEvents();
@@ -65,6 +70,18 @@ public class LoginActivity extends AppCompatActivity implements TextWatcher, Vie
                 return true;
             }
         });
+
+        mToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    mEtPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                } else {
+                    mEtPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                }
+                mEtPassword.setSelection(mEtPassword.length());
+            }
+        });
     }
 
     private void initViews() {
@@ -73,6 +90,7 @@ public class LoginActivity extends AppCompatActivity implements TextWatcher, Vie
         mBtnLogin = (Button) findViewById(R.id.id_btn_login);
         mBtnRegister = (Button) findViewById(R.id.id_btn_register);
         mBtnSkipLogin = (Button) findViewById(R.id.id_btn_skip_login);
+        mToggleButton = (ToggleButton) findViewById(R.id.id_tbtn_login);
     }
 
     private void login(String account, String pwd) {
@@ -81,7 +99,7 @@ public class LoginActivity extends AppCompatActivity implements TextWatcher, Vie
         entity.addBodyParameter(Constants.KEY_USER_PHONE, account);
         entity.addBodyParameter(Constants.KEY_USER_PWD, pwd);
         entity.setUri(API.URL_BASE_LOGIN);
-
+        mLoginDialog.show();
         LogUtil.i("登陆---->账号：" + account + "     密码：" + pwd);
 
         x.http().post(entity, new org.xutils.common.Callback.CommonCallback<String>() {
@@ -115,6 +133,7 @@ public class LoginActivity extends AppCompatActivity implements TextWatcher, Vie
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
                 LogUtil.e("xutils3  你访问失败 " + ex);
+                ToastUtils.showToast(ex.toString());
             }
 
             @Override
@@ -159,7 +178,7 @@ public class LoginActivity extends AppCompatActivity implements TextWatcher, Vie
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.id_btn_login://登陆
-
+//                LogUtil.i("onClick  ======    login");
                 login(mEtAccount.getText().toString(), mEtPassword.getText().toString());
                 break;
             case R.id.id_btn_register://注册
@@ -167,6 +186,7 @@ public class LoginActivity extends AppCompatActivity implements TextWatcher, Vie
                 break;
             case R.id.id_btn_skip_login://跳过登陆
                 openMainPager();
+//                login("15291773347", "123456");
                 break;
         }
     }

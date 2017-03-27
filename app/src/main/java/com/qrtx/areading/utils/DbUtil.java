@@ -43,7 +43,7 @@ public class DbUtil {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            String sql = "create table " + Constants.TABLE_NAME_READ_HISTORY + "(_id integer,bookName varchar(20))";
+            String sql = "create table " + Constants.TABLE_NAME_READ_HISTORY + "(_id varchar(20),bookName varchar(20),bookPath varchar(20),readTime varchar(20))";
             execSQL(db, sql);
         }
 

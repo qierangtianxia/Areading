@@ -16,21 +16,40 @@
         android:id="@+id/id_et_nick"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/nick" />
+        android:hint="@string/nick"
+        android:maxLines="1" />
 
     <EditText
         android:id="@+id/id_et_phone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/phonenumber"
-        android:inputType="phone" />
+        android:inputType="phone"
+        android:maxLines="1" />
 
-    <EditText
-        android:id="@+id/id_et_register_pwd"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/password"
-        android:inputType="phone" />
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/id_et_register_pwd"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/password"
+            android:inputType="textPassword"
+            android:maxLines="1" />
+
+        <ToggleButton
+            android:id="@+id/id_tbtn_register"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@drawable/selector_btn_eye"
+            android:textOff="@null"
+            android:textOn="@null" />
+    </LinearLayout>
+
 
     <RadioGroup
         android:id="@+id/id_sex_radio"
@@ -55,13 +74,17 @@
 
     <Button
         android:id="@+id/id_btn_confirm"
+        style="@style/ButtonStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:text="@string/comfirm" />
 
     <Button
         android:id="@+id/id_btn_cancle"
+        style="@style/ButtonStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:text="@string/cancle" />
 </LinearLayout>
